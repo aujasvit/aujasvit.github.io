@@ -10,12 +10,14 @@
     <meta content="en_EN" property="og:locale">
     <meta content="website" property="og:type">
     <meta content="https://aujasvit.com/cto" property="og:url">
-    <meta content="CTO" property="og:title">
-    <meta content="Your Paper Title Here" property="og:description">
+    <meta content="CTO: Resolution-Agnostic Neural Operators for Multi-Rate Sparse-View CT" property="og:title">
+    <meta content="CTO is the first neural operator framework for sparse-view CT reconstruction: a single resolution-agnostic model that generalises across measurement sampling rates without retraining. ECCV 2026." property="og:description">
+    <meta content="https://aujasvit.com/cto/images/overview.png" property="og:image">
 
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:site" content="@your_twitter_id">
-    <meta name="twitter:description" content="CTO: Your Paper Title Here">
+    <meta name="twitter:title" content="CTO: Resolution-Agnostic Neural Operators for Multi-Rate Sparse-View CT">
+    <meta name="twitter:description" content="The first neural operator framework for sparse-view CT reconstruction — one model across all sampling rates. ECCV 2026.">
+    <meta name="twitter:image" content="https://aujasvit.com/cto/images/overview.png">
 
     <link rel="stylesheet" type="text/css" media="all" href="../assets/stylesheets/main_free.css" />
     <link rel="stylesheet" type="text/css" media="all" href="../clarity/clarity.css" />
@@ -62,19 +64,22 @@
                         <br><sup>†</sup> Equal contribution
                     </p>
                     <p class="abstract">
-                        Your abstract goes here. Replace this text with a brief summary of your research paper — what problem you solve, your approach, and key results. Keep it to 2–4 sentences.
+                        Sparse-view Computed Tomography (CT) reconstructs images from a limited number of X-ray projections to reduce radiation and scanning time, which is an ill-posed inverse problem. Existing methods achieve high-fidelity reconstructions but overfit to a fixed acquisition setup, failing to generalize well across sampling rates. For example, convolutional neural networks (CNNs) use the same kernels across resolutions, leading to artifacts when data resolution changes. This is a critical limitation in clinical practice, where acquisition sampling settings vary across organs and diagnostic protocols.
+                        <br><br>
+                        We propose Computed Tomography neural Operator (CTO), the first neural operator (NO) framework for CT reconstruction. CTO extends learning from fixed discretized grids to continuous function space, enabling a single model to generalize across measurement sampling rates without retraining. We also propose new NO architectural designs for CT: (i) a dual-domain NO architecture in both sinogram and image spaces, capturing complementary spatial–frequency information, and (ii) rotation-equivariant DIScrete–COntinuous convolutions (DISCO) that exploit the rotational structure inherent in tomographic acquisition. Empirically, CTO outperforms CNNs (&gt; 3.4dB PSNR gain) and other baselines in multi-resolution settings across multiple CT datasets. Compared to state-of-the-art diffusion methods, CTO has 500&times; faster inference with an average 3dB gain. CTO further demonstrates strong out-of-distribution robustness, maintaining gains under cross-dataset transfer and noisy sinogram conditions. Ablation studies also validate each design choice. CTO establishes neural operators as a principled and practical paradigm for flexible, discretization-agnostic CT reconstruction.
                     </p>
 
                     <div class="info">
                         <div>
-                            <a href="https://arxiv.org" class="button icon" style="background-color: rgba(255, 255, 255, 0.2)"> Paper <i class="fa-regular fa-file-lines"></i></a> &nbsp;&nbsp;
-                            <a href="https://github.com" class="button icon" style="background-color: rgba(255, 255, 255, 0.2)">Code <i class="fa-solid fa-code"></i></a> &nbsp;&nbsp;
+                            <a href="https://arxiv.org/abs/2512.12236" class="button icon" style="background-color: rgba(255, 255, 255, 0.2)">arXiv <i class="fa-regular fa-file-lines"></i></a> &nbsp;&nbsp;
+                            <a href="cto_paper.pdf" class="button icon" style="background-color: rgba(255, 255, 255, 0.2)">Paper + Supplementary <i class="fa-regular fa-file-pdf"></i></a> &nbsp;&nbsp;
+                            <a href="https://github.com/neuraloperator/sparse_ct" class="button icon" style="background-color: rgba(255, 255, 255, 0.2)">Code <i class="fa-solid fa-code"></i></a> &nbsp;&nbsp;
                         </div>
                     </div>
                 </div>
 
                 <div class="info">
-                    <p>CVPR 2025</p>
+                    <p>ECCV 2026</p>
                 </div>
             </div>
         </div>
@@ -84,40 +89,187 @@
     <div class="container blog main first" id="blog-main">
         <h1>Introduction</h1>
         <p class="text">
-            Replace this with your introduction. Explain the problem you are solving, why it matters, and give the reader a roadmap for the rest of the page.
+            Computed Tomography (CT) reconstructs cross-sectional images of internal anatomy from X-ray projections acquired at multiple angles. The measured projection data — the <i>sinogram</i> — represents line integrals of the object's linear attenuation coefficient along different ray paths, modelled (for parallel-beam geometry) by the Radon transform. Reconstruction amounts to inverting that transform. In <i>sparse-view CT</i>, the number of projection angles is reduced to lower radiation dose or shorten scan time, and the inverse problem becomes ill-posed: direct inversion produces severe streaking artifacts, so regularisation or learned priors are required.
         </p>
 
         <p class="text">
-            You can add more paragraphs, inline math like $y = ax + b$, figures, and code blocks. See the full <a href="https://github.com/lorenmt/clarity-template">Clarity template</a> for all available components.
+            Deep learning has transformed sparse-view CT reconstruction, but existing methods are tied to a <i>specific discretization</i>. A model trained at one measurement sampling rate does not generalise to another, because convolutional kernels are defined on a fixed grid — the same kernel covers a different physical receptive field when the data resolution changes. The usual workaround is to train and maintain a separate model per sampling rate, which does not scale and still fails to transfer across image resolutions. This is a critical limitation in clinical practice, where acquisition sampling settings vary across organs, protocols, and diagnostic purposes.
+        </p>
+
+        <p class="text">
+            We propose <b>CTO</b> (Computed Tomography neural Operator), a unified reconstruction framework built on <a href="https://arxiv.org/abs/2108.08481">Neural Operators</a> (NOs), which learn mappings between infinite-dimensional function spaces rather than between fixed grids. A single CTO model works across measurement sampling rates and image resolutions without retraining. To the best of our knowledge, CTO is the first application of neural operators to sparse-view CT.
+        </p>
+
+        <p class="text">
+            Our main contributions are:
+        </p>
+        <ul class="text">
+            <li>A unified end-to-end CT reconstruction framework based on neural operators that generalises across measurement sampling rates and image resolutions — the first use of neural operators for sparse-view CT.</li>
+            <li>A joint spatial–frequency sinogram-domain operator that respects CT rotational geometry and acquisition physics.</li>
+            <li>By learning in function space via DISCO operators in both the sinogram and image domains, CTO is inherently rotation-equivariant and resolution-agnostic, giving consistent reconstructions across varying conditions.</li>
+        </ul>
+
+        <p class="text">
+            The central novelty is a <i>unified function-space formulation for sparse-view CT</i>: instead of learning separate discrete models for each sampling rate, we learn a single continuous operator from which different discretizations can be sampled, enabling multi-rate reconstruction and cross-discretization consistency without retraining.
+        </p>
+    </div>
+
+    <div class="container blog main gray">
+        <img src="images/overview.png">
+        <p class="caption">
+            Figure 1: <b>(a)</b> CTO reconstructs CT images across different measurement sampling rates and resolutions, whereas existing methods are resolution-dependent and must be trained separately for each sampling rate. <b>(b)</b> CTO's basic building block is DISCO (discrete–continuous convolution), a convolution layer defined in function space. DISCO learns kernels in the infinite-dimensional function space and discretizes them to the input data resolution, ensuring a consistent receptive field across resolutions. <b>(c)</b> CTO consistently outperforms the CNN baseline across sampling rates on kidney CT, at similar model size.
         </p>
     </div>
 
     <div class="container blog main">
         <h1>Method</h1>
         <p class="text">
-            Describe your approach here. Add a figure below by replacing the placeholder image path.
+            CTO is an end-to-end model following an unrolled network design. The input sinogram $\mathbf{p}$ is first processed by a sinogram-space neural operator $\mathrm{NO}_s$, which performs function-space learning that unifies different sampling rates along the view-angle axis $\theta$. The intermediate result is then fed to an unrolled network with 3 cascades, each consisting of an image-space neural operator $\mathrm{NO}_i$ and a data-consistency (physical update) term, which together denoise and reconstruct the final image.
+        </p>
+
+        <p class="text">
+            Both operators are built on <b>Discrete–Continuous (DISCO) convolutions</b>, which parametrize kernels in continuous function space and discretize them to match the input or output resolution — making the whole framework inherently resolution-agnostic. DISCO is discretization-convergent: the approximation error is bounded across resolutions and converges to zero as resolution increases.
         </p>
     </div>
 
     <div class="container blog main gray">
-        <!-- Replace with your own figure -->
-        <img src="../clarity/images/vit.png">
+        <img src="images/architecture.png">
         <p class="caption">
-            Figure 1: Replace this with a caption for your method diagram.
+            Figure 2: <b>CTO architecture overview.</b> The input sinogram is first fed to the neural operator $\mathrm{NO}_s$ defined in sinogram space, making CTO resolution-agnostic to different sinogram sampling rates. Unrolled cascades then mimic a classical iterative algorithm, each consisting of the image-space operator $\mathrm{NO}_i$ and a data-consistency term. Both are defined in function space, making CTO discretization-agnostic to sampling rates and image resolutions. $\mathcal{R}^{-1}$ denotes the inverse Radon transform.
+        </p>
+    </div>
+
+    <div class="container blog main">
+        <h2>Sinogram-space operator $\mathrm{NO}_s$</h2>
+        <p class="text">
+            $\mathrm{NO}_s$ acts on the function space of $\mathbf{p}(\theta, r)$, with detector position $r$ and view angle $\theta$ as the two sinogram axes. DISCO convolutions are applied directly in this $(\theta, r)$ coordinate system — without reparameterizing to $(x, y)$ — so the model learns in the intrinsic measurement domain and avoids projection error. Because the sinogram's local support corresponds, by Radon duality, to direction-selective <i>global</i> support in image space, $\mathrm{NO}_s$ learns global structural information, complementing the local detail captured by $\mathrm{NO}_i$.
+        </p>
+
+        <p class="text">
+            <b>Joint spatial–frequency learning.</b> $\mathrm{NO}_s$ comprises two parallel U-shaped DISCO branches. $\mathrm{NO}_{s,\text{spatial}}$ operates on $\mathbf{p}(\theta, r)$ to capture local, geometry-aware correlations. $\mathrm{NO}_{s,\text{freq}}$ operates on the sinogram's frequency representation, obtained by a 1D Fourier transform along the detector axis, to model long-range angular–radial dependencies; the outputs are averaged. This is motivated by the Fourier slice theorem,
+        </p>
+        <p class="text" style="text-align: center;">
+            $\mathcal{F}_r\{\mathbf{p}(\theta, r)\}(\omega) = \hat{f}(\omega\cos\theta, \omega\sin\theta),$
+        </p>
+        <p class="text">
+            which says the 1D Fourier transform of the sinogram along $r$ encodes the object's frequency spectrum in polar coordinates — so localized operations there correspond to global modifications of the reconstructed image. It is also a data-driven generalisation of filtered back projection (FBP): rather than imposing a hand-crafted ramp filter, $\mathrm{NO}_{s,\text{freq}}$ learns a frequency-domain prior directly from data.
+        </p>
+
+        <p class="text">
+            <b>Rotation equivariance.</b> Parallel-beam CT induces two symmetries on the sinogram: rotating the image by $\phi$ is a shift in view angle, $(\mathbf{p} \circ R_\phi)(\theta, r) = \mathbf{p}(\theta - \phi, r)$; and $\mathbf{p}(\theta + \pi, r) = \mathbf{p}(\theta, -r)$ — the $\pi$-periodicity-with-flip identity. We honour both with a modified circular padding along $\theta$ that first flips the boundary data along the detector axis $r$ and then wraps it around $\theta$ (standard reflective padding is used along $r$). This provides physically consistent boundary conditions, preventing discontinuities at $\theta = 0^\circ$ and $180^\circ$, and aligns the network's inductive bias with the sinogram's geometry.
+        </p>
+    </div>
+
+    <div class="container blog main gray">
+        <img src="images/sinogram_operator.png">
+        <p class="caption">
+            Figure 3: <b>(a) Sinogram-space neural operator $\mathrm{NO}_s$.</b> The subsampled sinogram is processed by two complementary operators — $\mathrm{NO}_{s,\text{spatial}}$ in the spatial domain and $\mathrm{NO}_{s,\text{freq}}$ in the frequency domain via a 1D Fourier transform along the detector axis $r$. Their outputs are combined and passed to the image-space stage. <b>(b) Rotation-equivariant learning.</b> Object rotation corresponds to a shift along the angular axis $\theta$; circular padding along $\theta$ preserves this rotational structure, with the angle flipping at $180^\circ$. <b>(c)</b> Rotating the object by $0^\circ$, $90^\circ$ and $180^\circ$ rotates the reconstruction consistently, confirming stable performance across orientations.
+        </p>
+    </div>
+
+    <div class="container blog main">
+        <h2>Image-space operator $\mathrm{NO}_i$</h2>
+        <p class="text">
+            $\mathrm{NO}_i$ is a U-shaped DISCO network operating in the spatial domain of image space, which lets it train and infer at different image resolutions. It refines and denoises the intermediate reconstruction from $\mathrm{NO}_s$, recovering high-frequency local information and fine structural detail, so that final reconstructions preserve both large-scale structural consistency and small-scale detail.
         </p>
     </div>
 
     <div class="container blog main">
         <h1>Results</h1>
         <p class="text">
-            Present your key quantitative and qualitative results here. Use tables, figures, or slide displays as needed.
+            We evaluate on the <a href="https://www.aapm.org/grandchallenge/lowdosect/">AAPM Low-Dose Abdominal CT</a> dataset and the <a href="https://kits19.grand-challenge.org/">C4KC-KiTS Kidney CT</a> dataset, at 9-, 18-, 36- and 72-view acquisition settings. For all methods a <i>single</i> model is trained across all sampling rates, with the rate chosen uniformly at random per batch, so every method sees the same amount of data at each rate. We report RMSE after conversion to Hounsfield Units (clinical accuracy) alongside PSNR and SSIM in the original reconstruction space (image similarity).
+        </p>
+
+        <p class="text">
+            CTO outperforms learning-free methods, diffusion methods, and CNN and transformer architectures. Averaged over view counts, CTO is <b>3 dB PSNR</b> better than the unrolled CNN baseline, <b>6 dB</b> better than DPS, and <b>6 dB</b> better than DuDoTrans on the abdomen dataset; on the kidney dataset the corresponding gains are <b>4 dB</b>, <b>3 dB</b> and <b>5 dB</b>. Note that some baselines score below their published numbers — expected, since those works train a separate model per sampling rate.
+        </p>
+
+        <div class="table-wrapper">
+            <table>
+                <thead class="center">
+                    <tr>
+                        <th>Category</th>
+                        <th>Method</th>
+                        <th>RMSE (HU) $\downarrow$</th>
+                        <th>PSNR $\uparrow$</th>
+                        <th>SSIM ($\times 10^{-2}$) $\uparrow$</th>
+                    </tr>
+                </thead>
+                <tbody class="center">
+                    <tr><td>Learning-free</td><td>FBP</td><td>632.58</td><td>13.14</td><td>33.87</td></tr>
+                    <tr><td>Learning-free</td><td>SART</td><td>161.91</td><td>24.97</td><td>59.51</td></tr>
+                    <tr><td>Diffusion</td><td>DPS</td><td>149.97</td><td>25.68</td><td>60.08</td></tr>
+                    <tr><td>Diffusion</td><td>ALD</td><td>148.13</td><td>25.78</td><td>63.42</td></tr>
+                    <tr><td>Single pass</td><td>DuDoTrans</td><td>154.64</td><td>25.36</td><td>69.52</td></tr>
+                    <tr><td>Single pass</td><td>GloReDi</td><td>96.89</td><td>29.47</td><td>78.52</td></tr>
+                    <tr><td>Single pass</td><td>MDPRNet</td><td>151.78</td><td>25.38</td><td>73.05</td></tr>
+                    <tr><td>Unrolled</td><td>Learned PD</td><td>155.14</td><td>25.35</td><td>50.21</td></tr>
+                    <tr><td>Unrolled</td><td>LEARN</td><td>153.39</td><td>25.51</td><td>73.42</td></tr>
+                    <tr><td>Unrolled</td><td>RegFormer</td><td>150.57</td><td>25.67</td><td>72.95</td></tr>
+                    <tr><td>Unrolled</td><td>Unrolled CNN</td><td>100.65</td><td>29.14</td><td>78.21</td></tr>
+                    <tr><td>Unrolled</td><td><b>CTO (ours)</b></td><td><b>75.97</b></td><td><b>31.57</b></td><td><b>81.62</b></td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="caption">
+            Table 1: 18-view sparse-view CT reconstruction on the AAPM dataset. Lower is better for RMSE, higher for PSNR/SSIM. All learning methods are a single model trained jointly on $N_v = \{9, 18, 36, 72\}$ views. Full results at 36 and 72 views, with standard deviations, are in the paper.
+        </p>
+    </div>
+
+    <div class="container blog main gray">
+        <img src="images/visualizations.png">
+        <p class="caption">
+            Figure 4: Reconstruction at the 18-view sampling rate on the AAPM abdomen dataset (top row) and the Kidney dataset (bottom row). CTO outperforms baselines on both PSNR (upper left of each panel) and visual reconstruction quality.
+        </p>
+    </div>
+
+    <div class="container blog main">
+        <h2>Zero-shot super-resolution</h2>
+        <p class="text">
+            Because CTO's kernels are defined as continuous functions, they maintain the same <i>relative</i> receptive field when the discretization changes — a CNN's fixed-size kernel covers half the relative field when resolution doubles. We test this without any fine-tuning.
+        </p>
+        <p class="text">
+            <b>Image domain ($\mathrm{NO}_i$).</b> All models are trained to produce $256 \times 256$ reconstructions from 18-view sinograms; at inference the intermediate output is bilinearly upsampled to $512 \times 512$ before image-space processing. CTO gains <b>3 dB PSNR</b> over the CNN baseline and <b>4.8 dB</b> over LEARN. The CNN baseline shows substantial blurring and aliasing at the higher resolution, while CTO preserves much sharper detail.
+        </p>
+        <p class="text">
+            <b>Sinogram domain ($\mathrm{NO}_s$).</b> Models are trained on sinograms with 72 views and 672 detectors, then evaluated at larger sinogram sizes. At 144 views / 672 detectors, CTO outperforms the unrolled CNN by <b>3.5 dB</b>, LEARN by 3.2 dB and RegFormer by 2.8 dB; at 144 views / 1344 detectors, by <b>3.7 dB</b>, 2.7 dB and 2.4 dB respectively.
+        </p>
+    </div>
+
+    <div class="container blog main gray">
+        <img src="images/superres.png">
+        <p class="caption">
+            Figure 5: Zero-shot super-resolution. CTO outperforms the CNN baseline for both $\mathrm{NO}_i$ and $\mathrm{NO}_s$ super-resolution, preserving fine anatomical structure with fewer artifacts.
+        </p>
+    </div>
+
+    <div class="container blog main">
+        <h2>Analysis and ablations</h2>
+        <p class="text">
+            <b>Overfitting to a single rate.</b> A model trained only at 72 views collapses when tested elsewhere: LEARN reaches 32.32 dB at 72 views but 4.16 dB at 18 views, and RegFormer 35.11 dB versus 5.04 dB. Multi-rate co-training mitigates this (LEARN 25.51 / 27.53 / 29.90 dB and RegFormer 25.67 / 28.00 / 30.43 dB at 18 / 36 / 72 views), but CTO remains well ahead at <b>31.57 / 35.06 / 37.88 dB</b>.
+        </p>
+        <p class="text">
+            <b>Inference cost.</b> On an NVIDIA A100, CTO runs in <b>0.065 s</b> per reconstruction with no per-rate tuning, against 51.58 s for DPS and 32.72 s for ALD — over $500\times$ faster than diffusion, which additionally requires hyperparameter tuning for each sampling pattern. SART (0.417 s) also needs per-rate tuning.
+        </p>
+        <p class="text">
+            <b>Component ablations.</b> Averaged over view counts, removing $\mathrm{NO}_i$ costs 3.86 dB PSNR and removing $\mathrm{NO}_s$ costs 4.82 dB. Within $\mathrm{NO}_s$, removing the spatial branch costs 3.1 dB and the frequency branch 2.7 dB. The rotation-equivariant circular padding is worth 0.83 dB at 24-view subsampling (33.00 dB with, 32.17 dB without).
         </p>
     </div>
 
     <div class="container blog main">
         <h1>Conclusion</h1>
         <p class="text">
-            Summarise your contributions and findings, and point to future work.
+            We present CTO, a unified neural-operator framework for sparse-view CT reconstruction that generalises across sampling rates of the sensory data, overcoming the limitation of existing deep learning methods that are tied to a fixed acquisition setting. By combining rotation-equivariant DISCO convolutions with joint spatial–frequency learning in the sinogram domain, CTO achieves robust, resolution-agnostic reconstructions and consistently outperforms state-of-the-art methods across downsampling regimes — a scalable and flexible alternative to traditional CT reconstruction.
+        </p>
+        <p class="text">
+            Future work could extend CTO to more clinically relevant datasets, to 3D CT and other computational imaging tasks, add uncertainty analysis, and evaluate clinical applicability across broader scanner protocols.
+        </p>
+    </div>
+
+    <div class="container blog main">
+        <h1>Acknowledgements</h1>
+        <p class="text">
+            This work is supported in part by ONR (MURI grant N000142312654 and N000142012786). A.D. is supported in part by the Summer Undergraduate Research Fellowships (SURF) at Caltech. J.W. is supported in part by the Pritzker AI+Science initiative and Schmidt Sciences. A.A. is supported in part by the Bren endowed chair and the AI2050 senior fellow program at Schmidt Sciences.
         </p>
     </div>
 
@@ -126,11 +278,11 @@
         <p class="text">
             If you find this work useful, please cite:
         </p>
-<pre><code class="plaintext">@article{yourcitation2024,
-    title={Your Paper Title Here},
-    author={Author One and Author Two and Author Three},
-    journal={Conference Name},
-    year={2024}
+<pre><code class="plaintext">@inproceedings{datta2026cto,
+    title={Resolution-Agnostic Neural Operators for Multi-Rate Sparse-View CT},
+    author={Datta, Aujasvit and Wang, Jiayun and Aali, Asad and Anandkumar, Anima},
+    booktitle={European Conference on Computer Vision (ECCV)},
+    year={2026}
 }</code></pre>
     </div>
 
@@ -147,5 +299,5 @@
     <script>hljs.initHighlightingOnLoad();</script>
     <script src="../clarity/clarity.js"></script>
     <script src="../assets/scripts/main.js"></script>
-    </html>
 </body>
+</html>
