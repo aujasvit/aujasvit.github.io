@@ -52,6 +52,18 @@
     .figure-block { margin: 2rem 0; }
     .figure-block img { width: 100%; display: block; }
     .figure-block .caption { font-size: 0.95rem; color: var(--t-dim); margin-top: 0.75rem; text-align: left; }
+    /* Bulma hides .navbar-menu below 1024px behind a burger. With a single
+       nav item there is nothing to collapse, so keep it visible instead. */
+    @media screen and (max-width: 1023px) {
+      .navbar-menu {
+        display: flex !important;
+        justify-content: center;
+        background-color: transparent;
+        box-shadow: none;
+        padding: 0;
+      }
+      .navbar-start { display: flex; justify-content: center; width: 100%; }
+    }
     /* Bulma's .title.is-1 is 3rem at every width -- too large on phones */
     @media screen and (max-width: 768px) {
       .publication-title.title.is-1 { font-size: 2rem; line-height: 1.2; }
@@ -69,13 +81,6 @@
 <body class="bulma-themed">
 
 <nav class="navbar" role="navigation" aria-label="main navigation">
-  <div class="navbar-brand">
-    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
-    </a>
-  </div>
   <div class="navbar-menu">
     <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
       <a class="navbar-item" href="/" aria-label="Back to home" title="Home">
