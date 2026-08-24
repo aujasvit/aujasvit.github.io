@@ -1,0 +1,243 @@
+/* Shared across the site: the light/dark toggle button, plus a token layer
+   for the Clarity template (which hardcodes light colours throughout).
+
+   The LIGHT values below are Clarity's own existing colours, so light mode
+   renders exactly as it did before this file existed. Only dark mode is new. */
+
+/* ---------- palette ---------- */
+:root {
+    --t-body-bg:   #ffffff;                      /* main_free.css: body */
+    --t-body-fg:   #353535;
+    --t-dim:       #666667;
+    --t-title-bg:  #E0E4E6;                      /* cto: inline on #first-content */
+    --t-panel-bg:  #f6f6f6;                      /* .container.blog.gray */
+    --t-footer-bg: #fafafa;
+    --t-chip-bg:   #ececec;                      /* buttons, table stripes */
+    --t-code-bg:   rgba(230, 235, 237, 0.25);
+    --t-edge:      #dfe3e6;
+    --t-nav-bg:    rgba(255, 255, 255, 0.5);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --t-body-bg:   #16191c;
+        --t-body-fg:   #e6e9ec;
+        --t-dim:       #9aa3ab;
+        --t-title-bg:  #1c2024;
+        --t-panel-bg:  #1c2024;
+        --t-footer-bg: #1c2024;
+        --t-chip-bg:   #23282d;
+        --t-code-bg:   #23282d;
+        --t-edge:      #2c3136;
+        --t-nav-bg:    rgba(28, 32, 36, 0.72);
+    }
+}
+:root[data-theme="dark"] {
+    --t-body-bg:   #16191c;
+    --t-body-fg:   #e6e9ec;
+    --t-dim:       #9aa3ab;
+    --t-title-bg:  #1c2024;
+    --t-panel-bg:  #1c2024;
+    --t-footer-bg: #1c2024;
+    --t-chip-bg:   #23282d;
+    --t-code-bg:   #23282d;
+    --t-edge:      #2c3136;
+    --t-nav-bg:    rgba(28, 32, 36, 0.72);
+}
+
+/* ---------- toggle button (every page) ---------- */
+.theme-toggle {
+    position: fixed;
+    top: 1.25rem;
+    right: 1.5rem;
+    z-index: 1100;              /* above Clarity's fixed navbar (z-index 1000) */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--t-dim);
+    cursor: pointer;
+    transition: color 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+.theme-toggle:hover { color: var(--t-body-fg); }
+.theme-toggle:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+.theme-toggle svg { display: block; }
+
+@media (max-width: 40rem) {
+    .theme-toggle { top: 0.75rem; right: 0.75rem; }
+}
+
+/* ---------- Clarity pages opt in with <body class="clarity-themed"> ---------- */
+body.clarity-themed {
+    background-color: var(--t-body-bg);
+    color: var(--t-body-fg);
+}
+
+body.clarity-themed .container,
+body.clarity-themed .container.blog.main,
+body.clarity-themed .container.blog.main.first {
+    background-color: var(--t-body-bg);
+    color: var(--t-body-fg);
+}
+
+/* the title block carries an inline background-color, so it needs !important */
+body.clarity-themed #first-content {
+    background-color: var(--t-title-bg) !important;
+    color: var(--t-body-fg);
+}
+
+body.clarity-themed .container.blog.gray,
+body.clarity-themed .container.blog.main.gray { background-color: var(--t-panel-bg); }
+
+body.clarity-themed footer { background-color: var(--t-footer-bg); }
+
+body.clarity-themed h1,
+body.clarity-themed h2,
+body.clarity-themed h3,
+body.clarity-themed p,
+body.clarity-themed li,
+body.clarity-themed .title,
+body.clarity-themed .author,
+body.clarity-themed .abstract { color: var(--t-body-fg); }
+
+body.clarity-themed button,
+body.clarity-themed .button { background-color: var(--t-chip-bg); color: var(--t-body-fg); }
+
+body.clarity-themed code,
+body.clarity-themed pre,
+body.clarity-themed .code-copy-btn { background-color: var(--t-code-bg); color: var(--t-body-fg); }
+
+body.clarity-themed table tbody tr:nth-child(2n+1) { background-color: var(--t-chip-bg); }
+body.clarity-themed table,
+body.clarity-themed td,
+body.clarity-themed th { border-color: var(--t-edge); }
+
+/* navbar.js injects its own translucent-white styles at runtime */
+body.clarity-themed .nav-container { background: var(--t-nav-bg) !important; }
+body.clarity-themed .nav-container a { color: var(--t-dim); }
+body.clarity-themed .nav-container a:hover,
+body.clarity-themed .nav-container a.active { color: var(--t-body-fg); }
+
+/* Clarity sets some colours with ID-weighted or state selectors that outrank the
+   blanket rules above; these match that weight so dark mode actually applies.
+   In light mode every value below resolves to Clarity's original colour. */
+body.clarity-themed div.container.blog#first-content div.blog-title .blog-intro .info p {
+    color: var(--t-body-fg);
+}
+body.clarity-themed a { color: var(--t-body-fg); }
+body.clarity-themed table td { color: var(--t-body-fg); }
+body.clarity-themed table th,
+body.clarity-themed code { color: var(--t-dim); }
+body.clarity-themed .code-copy-btn,
+body.clarity-themed .code-copy-btn:hover,
+body.clarity-themed .code-copy-btn:active { color: var(--t-body-fg); }
+body.clarity-themed input[type=submit],
+body.clarity-themed input[type=reset],
+body.clarity-themed input[type=button],
+body.clarity-themed button,
+body.clarity-themed .button,
+body.clarity-themed button:hover,
+body.clarity-themed .button:hover,
+body.clarity-themed button:active,
+body.clarity-themed .button:active { color: var(--t-body-fg); }
+body.clarity-themed .before figcaption,
+body.clarity-themed .after figcaption { color: var(--t-body-fg); }
+
+/* author line: upright, not italic (Clarity italicises it via an ID selector) */
+body.clarity-themed div.container.blog#first-content div.blog-title .blog-intro p.author {
+    font-style: normal;
+}
+
+/* "back to home" link at the top of a project page */
+body.clarity-themed .back-home {
+    margin: 0 0 1.5rem;
+    padding: 0;
+    font-style: normal;
+    text-align: center;
+    line-height: 1;
+}
+body.clarity-themed .back-home a {
+    display: inline-block;
+    padding: 0.35rem;
+    font-size: 1.5rem;
+    color: var(--t-dim);
+    text-decoration: none;
+    border-bottom: none;
+    transition: color 0.15s ease;
+}
+body.clarity-themed .back-home a:hover { color: var(--t-body-fg); }
+body.clarity-themed .back-home a:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+
+/* ==========================================================================
+   Bulma / Nerfies pages opt in with <body class="bulma-themed">.
+   Light values below are Bulma's own, so light mode is unchanged.
+   ========================================================================== */
+:root {
+    --t-link:      #3273dc;                 /* Bulma anchor blue */
+    --t-heading:   #363636;
+    --t-chip-fg:   #ffffff;                 /* label on .button.is-dark */
+    --t-chip-dark: #363636;                 /* .button.is-dark background */
+    --t-code-fg:   #da1039;
+}
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --t-link:      #6ba6f5;
+        --t-heading:   #e6e9ec;
+        --t-chip-fg:   #e6e9ec;
+        --t-chip-dark: #2f363d;
+        --t-code-fg:   #ff8a9b;
+    }
+}
+:root[data-theme="dark"] {
+    --t-link:      #6ba6f5;
+    --t-heading:   #e6e9ec;
+    --t-chip-fg:   #e6e9ec;
+    --t-chip-dark: #2f363d;
+    --t-code-fg:   #ff8a9b;
+}
+
+body.bulma-themed { background-color: var(--t-body-bg); color: var(--t-body-fg); }
+
+body.bulma-themed .navbar,
+body.bulma-themed .hero,
+body.bulma-themed .section { background-color: var(--t-body-bg); }
+body.bulma-themed .navbar { box-shadow: none; }
+
+body.bulma-themed .hero.teaser { background-color: var(--t-body-bg); }
+body.bulma-themed .footer { background-color: var(--t-panel-bg); color: var(--t-body-fg); }
+body.bulma-themed .footer .icon-link { color: var(--t-body-fg); }
+
+body.bulma-themed .title,
+body.bulma-themed .subtitle,
+body.bulma-themed h1, body.bulma-themed h2, body.bulma-themed h3 { color: var(--t-heading); }
+body.bulma-themed .content,
+body.bulma-themed .content p,
+body.bulma-themed .content li { color: var(--t-body-fg); }
+body.bulma-themed .publication-venue { color: var(--t-dim); }
+
+body.bulma-themed a { color: var(--t-link); }
+body.bulma-themed .publication-authors a { color: var(--t-link) !important; }
+
+/* the rounded pill buttons in the hero */
+body.bulma-themed .button.is-dark {
+    background-color: var(--t-chip-dark);
+    color: var(--t-chip-fg);
+}
+body.bulma-themed .button.is-dark:hover { background-color: var(--t-chip-bg); color: var(--t-chip-fg); }
+
+body.bulma-themed .table { background-color: transparent; color: var(--t-body-fg); }
+body.bulma-themed .table td,
+body.bulma-themed .table th { border-color: var(--t-edge); color: var(--t-body-fg); }
+body.bulma-themed .table.is-striped tbody tr:not(.is-selected):nth-child(2n) { background-color: var(--t-chip-bg); }
+
+body.bulma-themed pre { background-color: var(--t-code-bg); color: var(--t-body-fg); }
+body.bulma-themed code { background-color: var(--t-code-bg); color: var(--t-code-fg); }
+body.bulma-themed pre code { color: var(--t-body-fg); }
+
+body.bulma-themed .interpolation-panel { background: var(--t-panel-bg); }

@@ -1,0 +1,7 @@
+# GitHub Pages / Jekyll build config.
+# Anything listed here stays in the repository but is NOT published to the site.
+exclude:
+  - _archive/                  # previous Clarity version of the CTO page, kept for reference
+  - cto/_content-backup.html   # pre-strip draft of the CTO page content
+  - clarity.html               # upstream Clarity template demo pages
+  - minimal.html
