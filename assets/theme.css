@@ -6,16 +6,16 @@
 
 /* ---------- palette ---------- */
 :root {
-    --t-body-bg:   #ffffff;                      /* main_free.css: body */
-    --t-body-fg:   #353535;
-    --t-dim:       #666667;
-    --t-title-bg:  #E0E4E6;                      /* cto: inline on #first-content */
-    --t-panel-bg:  #f6f6f6;                      /* .container.blog.gray */
-    --t-footer-bg: #fafafa;
-    --t-chip-bg:   #ececec;                      /* buttons, table stripes */
-    --t-code-bg:   rgba(230, 235, 237, 0.25);
-    --t-edge:      #dfe3e6;
-    --t-nav-bg:    rgba(255, 255, 255, 0.5);
+    --t-body-bg:   #fcf6f1;                      /* cream, matching the home page */
+    --t-body-fg:   #1f1a17;
+    --t-dim:       #6d635c;
+    --t-title-bg:  #f3e9e1;                      /* clarity: inline on #first-content */
+    --t-panel-bg:  #f5ece4;                      /* panels / .container.blog.gray */
+    --t-footer-bg: #f7efe8;
+    --t-chip-bg:   #ece0d6;                      /* buttons, table stripes */
+    --t-code-bg:   #f3e9e1;
+    --t-edge:      #e6d9ce;
+    --t-nav-bg:    rgba(252, 246, 241, 0.72);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -179,11 +179,11 @@ body.clarity-themed .back-home a:focus-visible { outline: 2px solid currentColor
    Light values below are Bulma's own, so light mode is unchanged.
    ========================================================================== */
 :root {
-    --t-link:      #3273dc;                 /* Bulma anchor blue */
-    --t-heading:   #363636;
-    --t-chip-fg:   #ffffff;                 /* label on .button.is-dark */
-    --t-chip-dark: #363636;                 /* .button.is-dark background */
-    --t-code-fg:   #da1039;
+    --t-link:      #1a63d6;                 /* same blue as the home page */
+    --t-heading:   #1f1a17;
+    --t-chip-fg:   #fcf6f1;                 /* label on .button.is-dark */
+    --t-chip-dark: #332c26;                 /* .button.is-dark background */
+    --t-code-fg:   #b3222f;
 }
 @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -241,3 +241,16 @@ body.bulma-themed code { background-color: var(--t-code-bg); color: var(--t-code
 body.bulma-themed pre code { color: var(--t-body-fg); }
 
 body.bulma-themed .interpolation-panel { background: var(--t-panel-bg); }
+
+/* Bulma paints html white and leaves body transparent, so the canvas below
+   short content would stay white. Paint the root instead. */
+html { background-color: var(--t-body-bg); }
+
+/* remaining Bulma surfaces that hardcode white/grey */
+body.bulma-themed .navbar-menu,
+body.bulma-themed .navbar-dropdown { background-color: var(--t-body-bg); }
+body.bulma-themed .navbar-item.is-active { background-color: var(--t-panel-bg); }
+body.bulma-themed tr:not(.is-selected):hover { background-color: var(--t-chip-bg); }
+body.bulma-themed .navbar-item,
+body.bulma-themed .navbar-link { color: var(--t-body-fg); }
+body.bulma-themed .navbar-item:hover { background-color: transparent; color: var(--t-link); }
