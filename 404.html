@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page not found &middot; Aujasvit Datta</title>
+    <meta name="robots" content="noindex">
+    <style>
+        @font-face {
+            font-family: "Charter";
+            font-style: normal; font-weight: normal;
+            src: url("/assets/fonts/Charter/charter_regular.woff2") format("woff2");
+            font-display: swap;
+        }
+        :root {
+            --bg: #fcf6f1;
+            --fg: #1f1a17;
+            --muted: #6d635c;
+            --link: #1a63d6;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --bg: #16191c;
+                --fg: #e6e9ec;
+                --muted: #9aa3ab;
+                --link: #6ba6f5;
+            }
+        }
+        :root[data-theme="dark"] {
+            --bg: #16191c;
+            --fg: #e6e9ec;
+            --muted: #9aa3ab;
+            --link: #6ba6f5;
+        }
+        html, body { height: 100%; }
+        body {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+            color: var(--fg);
+            font-family: "Charter", Georgia, "Times New Roman", serif;
+            line-height: 1.6;
+            padding: 2rem;
+        }
+        main { max-width: 32rem; text-align: center; }
+        h1 { font-size: 1.5rem; font-weight: normal; margin: 0 0 0.5rem; }
+        p { color: var(--muted); margin: 0 0 1.25rem; }
+        a { color: var(--link); }
+    </style>
+</head>
+<body>
+<main>
+    <h1>Page not found</h1>
+    <p>That page doesn&rsquo;t exist.</p>
+    <p><a href="/">Back to the homepage</a></p>
+</main>
+</body>
+</html>
