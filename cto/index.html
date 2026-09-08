@@ -506,8 +506,8 @@
         <b>(a)</b> The full CTO pipeline: sinogram-space operator $\mathrm{NO}_s$, inverse Radon
         transform $\mathcal{R}^{-1}$, then unrolled cascades of image-space operator $\mathrm{NO}_i$
         with data consistency. <b>(b)</b> Inside $\mathrm{NO}_s$: parallel spatial and frequency
-        branches, the latter operating after an FFT along the detector axis $r$. <b>(c)</b> Rotating the
-        object shifts the sinogram along $\theta$, with a flip at $180^\circ$.
+        branches, the latter operating after an FFT along the detector axis $r$. <b>(c)</b> The measurement
+        rolled out into a sinogram, and the padding applied along $\theta$.
       </figcaption>
     </figure>
 
@@ -555,9 +555,8 @@
         We incorporate this symmetry in the padding we use for $\mathrm{NO}_s$. Along the $\theta$ axis, we
         wrap the top part of the sinogram with the bottom part, flipped along the detector axis $r$, and we
         also do the same for the bottom. This ensures that the network sees a continuous and physically
-        consistent sinogram with no discontinuity in the edges, and can learn more accurate patterns. Some
-        example reconstructions using CTO for rotated sinograms of the same image are shown in panel (c)
-        above.
+        consistent sinogram with no discontinuity in the edges, and can learn more accurate patterns. An
+        example of the padding used in $\mathrm{NO}_s$ is shown in panel (c) above.
       </p>
     </div>
   </div>
