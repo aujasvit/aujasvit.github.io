@@ -84,8 +84,6 @@
     .table-caption  { color: var(--t-body-fg); }
     .fig figcaption b { color: var(--t-body-fg); }
 
-    /* two media stacked, one above the other */
-    .fig-stack { display: grid; grid-template-columns: 1fr; gap: 0.85rem; }
 
     /* ---------- tables ---------- */
     .table-wrap { overflow-x: auto; margin: 1.5rem 0 0; }
@@ -319,6 +317,19 @@
         projections together, you get the final measurement called the <b>sinogram</b>
         $\mathbf{p}(\theta, r)$.
       </p>
+    </div>
+
+    <figure class="fig">
+      <div class="fig-frame">
+        <video src="videos/acquisition.mp4" autoplay loop muted playsinline controls
+               preload="metadata" aria-label="CT acquisition animation"></video>
+      </div>
+      <figcaption>
+        CT acquisition.
+      </figcaption>
+    </figure>
+
+    <div class="content prose">
       <p>
         Traditionally, reconstructing the underlying image from the sinogram involves a process called
         <b>Filtered Back-Projection</b> (FBP), which passes the sinogram through a high-pass filter to
@@ -329,19 +340,12 @@
     </div>
 
     <figure class="fig">
-      <div class="fig-stack">
-        <div class="fig-frame">
-          <video src="videos/acquisition.mp4" autoplay loop muted playsinline controls
-                 preload="metadata" aria-label="CT acquisition animation"></video>
-        </div>
-        <div class="fig-frame">
-          <video src="videos/recon.mp4" autoplay loop muted playsinline controls
-                 preload="metadata" aria-label="Filtered Back-Projection animation"></video>
-        </div>
+      <div class="fig-frame">
+        <video src="videos/recon.mp4" autoplay loop muted playsinline controls
+               preload="metadata" aria-label="Filtered Back-Projection animation"></video>
       </div>
       <figcaption>
-        <b>Top:</b> CT acquisition. <b>Bottom:</b> CT image reconstruction from the sinogram using
-        Filtered Back-Projection (FBP).
+        CT image reconstruction from the sinogram using Filtered Back-Projection (FBP).
       </figcaption>
     </figure>
 
