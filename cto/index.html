@@ -81,19 +81,11 @@
     }
     /* figure captions read at full text colour, not dimmed */
     .fig figcaption { color: var(--t-body-fg); }
-    .table-caption  { color: var(--t-dim); }
+    .table-caption  { color: var(--t-body-fg); }
     .fig figcaption b { color: var(--t-body-fg); }
 
-    /* two media side by side, stacking on narrow screens */
-    .fig-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.85rem;
-      align-items: center;
-    }
-    @media screen and (max-width: 640px) {
-      .fig-row { grid-template-columns: 1fr; }
-    }
+    /* two media stacked, one above the other */
+    .fig-stack { display: grid; grid-template-columns: 1fr; gap: 0.85rem; }
 
     /* ---------- tables ---------- */
     .table-wrap { overflow-x: auto; margin: 1.5rem 0 0; }
@@ -329,7 +321,7 @@
       </p>
       <p>
         Traditionally, reconstructing the underlying image from the sinogram involves a process called
-        <b>Filtered Back Projection</b> (FBP), which passes the sinogram through a high-pass filter to
+        <b>Filtered Back-Projection</b> (FBP), which passes the sinogram through a high-pass filter to
         reduce noise and sharpen edges, followed by back-projecting the sinogram onto an empty grid.
         This process is equivalent to performing the inverse Radon transform $\mathcal{R}^{-1}$ on the
         sinogram.
@@ -337,18 +329,19 @@
     </div>
 
     <figure class="fig">
-      <div class="fig-row">
+      <div class="fig-stack">
         <div class="fig-frame">
           <video src="videos/acquisition.mp4" autoplay loop muted playsinline controls
                  preload="metadata" aria-label="CT acquisition animation"></video>
         </div>
         <div class="fig-frame">
           <video src="videos/recon.mp4" autoplay loop muted playsinline controls
-                 preload="metadata" aria-label="Filtered back projection animation"></video>
+                 preload="metadata" aria-label="Filtered Back-Projection animation"></video>
         </div>
       </div>
       <figcaption>
-        <b>Left:</b> acquisition. <b>Right:</b> filtered back projection.
+        <b>Top:</b> CT acquisition. <b>Bottom:</b> CT image reconstruction from the sinogram using
+        Filtered Back-Projection (FBP).
       </figcaption>
     </figure>
 
@@ -357,7 +350,9 @@
         To reduce scan time and X-ray dose, we want to reduce the number of angles along which we take
         the X-ray projections (this process is called <b>sparse-view CT</b>). This gives us a sparse
         sinogram with fewer projections, and inverting this sparse sinogram to get an image is an ill-posed
-        inverse problem. Using naïve filtered back-projection gives us a streaked and noisy reconstruction.
+        inverse problem. In our work, a fully sampled sinogram has 720 projections, while we study the
+        problem of reconstructing CT images from sinograms with 9, 18, 36 and 72 projections. Using
+        naïve Filtered Back-Projection gives us a streaked and noisy reconstruction.
         As a result, we need <b>learned priors</b> which can give us better reconstructions.
       </p>
     </div>
@@ -430,10 +425,9 @@
     <div class="content prose">
       <h2 class="title is-3">Our Proposal</h2>
       <p>
-        We propose that instead of training a <i>family</i> of discrete-space networks, we train a
+        We propose that instead of training a family of discrete-space networks, we train a
         <b>single function space map</b>. We do this using
-        <a href="https://arxiv.org/abs/2108.08481" target="_blank" rel="noopener noreferrer">Neural
-        Operators</a>, a deep learning architecture that learns mappings between function spaces. Since a
+        Neural Operators, a deep learning architecture that learns mappings between function spaces. Since a
         function has infinite resolution, it can handle inputs and outputs at any arbitrary discretization
         or resolution. Therefore, a single neural operator can ingest sinograms at any sub-sampling rate and
         output reconstructed images at any image resolution without any retraining required.
@@ -452,8 +446,8 @@
     <div class="content prose">
       <p>
         We use the <b>Discrete&ndash;Continuous (DISCO)</b> Neural Operator, which is a function space
-        generalization of a traditional Convolutional Neural Network (CNN). Here is how it works: take a
-        3&times;3 CNN kernel for example. It has nine basis functions (which are the nine one-hot matrices),
+        generalization of a traditional Convolutional Neural Network (CNN). Take a 3&times;3 CNN kernel for
+        example. It has nine basis functions (which are the nine one-hot matrices),
         and we learn weights for each of these basis functions during training. For a DISCO convolutional
         kernel, the basis functions are continuous 2-D functions, and training learns the weights of these
         continuous functions. The final kernel is thus a weighted sum of continuous functions, and is hence a
@@ -461,11 +455,11 @@
       </p>
       <p>
         Since the final kernel is continuous, it can be discretized for any resolution such that its
-        receptive field covers the same <i>physical area</i> of the image. For example, the continuous kernel
+        receptive field covers the same <i>physical area</i> of the image. For instance, the continuous kernel
         can be discretized to a 3&times;3 discrete kernel when working on 256&times;256 images and to a
         6&times;6 kernel while working with 512&times;512 images. On the other hand, since CNNs have a fixed
         discretization, their receptive field covers a different physical area for images with different
-        resolutions, and hence they need to be retrained for each resolution. Thus, using DISCO neural
+        resolutions, and hence they need to be retrained for each resolution. Thus, by using DISCO neural
         operators, we can <b>learn at one resolution and infer at any other resolution</b>.
       </p>
     </div>
@@ -541,7 +535,7 @@
         this gives us the object's 2-D frequency map in polar coordinates. As a result, the frequency
         branch of $\mathrm{NO}_s$ learns local patterns in the frequency domain, which correspond to
         <i>global</i> patterns in the spatial domain. The frequency branch can also be seen as a learned
-        generalization of the ramp filter used in filtered back projection. This two-branch design
+        generalization of the ramp filter used in Filtered Back-Projection. This two-branch design
         ensures that we learn both local and global features, leading to better reconstruction quality.
       </p>
 
@@ -557,6 +551,10 @@
         also do the same for the bottom. This ensures that the network sees a continuous and physically
         consistent sinogram with no discontinuity in the edges, and can learn more accurate patterns. An
         example of the padding used in $\mathrm{NO}_s$ is shown in panel (c) above.
+      </p>
+      <p>
+        $\mathrm{NO}_{s,\text{freq}}$, $\mathrm{NO}_{s,\text{spatial}}$ and each $\mathrm{NO}_i$ cascade
+        are all UDNOs.
       </p>
     </div>
   </div>
@@ -622,8 +620,8 @@
     <div class="content prose">
       <h3 class="title is-4" id="example-reconstructions">Example Reconstructions</h3>
       <p>
-        The top row below is from the AAPM low-dose CT dataset, the bottom row from the C4KC-KiTS kidney
-        dataset, with PSNR in the top-left corner of each image. In the enlarged regions you can see that
+        In the figure below, we present some example reconstructions from different models. In the
+        enlarged regions you can see that
         CTO produces more faithful reconstructions and preserves noticeably more detail than the other
         methods.
       </p>
@@ -643,7 +641,7 @@
       <p>
         We also see that CTO holds its advantage across down-sampling rates. If you look at the enlarged
         regions and compare them across rates, the loss of detail as we sample less is noticeably smaller
-        for CTO &mdash; it preserves fidelity far more gracefully than the other methods.
+        for CTO than other methods.
       </p>
     </div>
 
@@ -662,8 +660,8 @@
         space and sinogram space.
       </p>
       <p>
-        For image space, if we train at 256&times;256 output resolution and test at 512&times;512 resolution
-        with no fine-tuning, CTO performs <b>3&nbsp;dB</b> PSNR better than Unrolled CNN Variational Network
+        For image space, we train at 256&times;256 output resolution and test at 512&times;512 resolution
+        with no fine-tuning. CTO performs <b>3&nbsp;dB</b> PSNR better than Unrolled CNN Variational Network
         and <b>4.8&nbsp;dB</b> PSNR over LEARN. As we can see in the figure, CTO also has much better
         reconstruction quality.
       </p>
