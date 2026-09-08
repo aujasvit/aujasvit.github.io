@@ -50,11 +50,112 @@
           src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   <style>
-    .figure-block { margin: 2rem 0; }
-    .figure-block img { width: 100%; display: block; }
-    .figure-block .caption { font-size: 0.95rem; color: var(--t-dim); margin-top: 0.75rem; text-align: left; }
-    /* Bulma hides .navbar-menu below 1024px behind a burger. With a single
-       nav item there is nothing to collapse, so keep it visible instead. */
+    /* ---------- blog layout ----------
+       One centred column: text, figures and captions all share the same width. */
+    .wrap  { max-width: 760px; margin: 0 auto; padding: 0 1.5rem; }
+    .prose p { margin-bottom: 1.1rem; line-height: 1.72; }
+    .prose ul { margin: 0 0 1.1rem 1.25rem; line-height: 1.72; }
+
+    .section.blog { padding-top: 1.75rem; padding-bottom: 1.75rem; }
+    .blog h2.title.is-3 { margin-bottom: 1.25rem; }
+    .blog h3.title.is-4 { margin-top: 2rem; margin-bottom: 1rem; }
+
+    /* ---------- figures ----------
+       Source figures are exported from slides: dark ink on a light ground.
+       The frame keeps them legible in dark mode too. */
+    .fig { margin: 2rem 0; }
+    .fig-frame {
+      background: #fbf8f3;
+      border: 1px solid var(--t-edge);
+      border-radius: 10px;
+      padding: 1rem;
+    }
+    .fig-frame img,
+    .fig-frame video { display: block; width: 100%; height: auto; }
+    .fig figcaption,
+    .table-caption {
+      font-size: 0.85rem;
+      line-height: 1.6;
+      margin-top: 0.75rem;
+      text-align: center;
+    }
+    /* figure captions read at full text colour, not dimmed */
+    .fig figcaption { color: var(--t-body-fg); }
+    .table-caption  { color: var(--t-dim); }
+    .fig figcaption b { color: var(--t-body-fg); }
+
+    /* two media side by side, stacking on narrow screens */
+    .fig-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem;
+      align-items: center;
+    }
+    @media screen and (max-width: 640px) {
+      .fig-row { grid-template-columns: 1fr; }
+    }
+
+    /* ---------- tables ---------- */
+    .table-wrap { overflow-x: auto; margin: 1.5rem 0 0; }
+    .table-wrap table { font-size: 0.88rem; margin-bottom: 0; }
+    .table-wrap td, .table-wrap th { text-align: center; vertical-align: middle; white-space: nowrap; }
+    .table-wrap td.l, .table-wrap th.l { text-align: left; }
+    .table-wrap th[rowspan] { vertical-align: middle; }
+    .table-wrap th.span-head {
+      text-align: center;
+      font-weight: 600;
+      border-bottom: 1px solid var(--t-edge);
+      padding-bottom: 0.25rem;
+    }
+    .table-wrap th.sub { font-weight: 700; }
+    .table-wrap tr.is-ours td { font-weight: 700; }
+    /* grouped category column, spanned and centred like the paper */
+    .table-wrap td.cat {
+      vertical-align: middle;
+      white-space: nowrap;
+      color: var(--t-dim);
+      border-right: 1px solid var(--t-edge);
+    }
+    .table-wrap tr.grp > td { border-top: 1px solid var(--t-edge); }
+    /* numbers that make the failure case obvious */
+    .table-wrap td.is-bad { color: #b3222f; font-weight: 600; }
+    body.bulma-themed .table-wrap td.is-bad { color: var(--t-code-fg); }
+
+    /* tighten the gap between the hero buttons and the abstract */
+    .hero .hero-body { padding-bottom: 0.5rem; }
+    #abstract { padding-top: 0.75rem; }
+
+    .abstract-lead { text-align: center; }
+
+    /* ---------- contents index ---------- */
+    html { scroll-behavior: smooth; }
+    .section.blog[id] { scroll-margin-top: 1.5rem; }
+    h3[id] { scroll-margin-top: 1.5rem; }
+
+    .toc {
+      border-top: 1px solid var(--t-edge);
+      border-bottom: 1px solid var(--t-edge);
+      padding: 1.1rem 0;
+    }
+    .toc ol {
+      list-style: decimal;
+      margin: 0 0 0 1.4rem;
+      padding: 0;
+      font-size: 0.95rem;
+    }
+    .toc ol > li { margin: 0.3rem 0; padding-left: 0.15rem; }
+    .toc ul {
+      list-style: none;
+      margin: 0.3rem 0 0.3rem 0;
+      padding: 0;
+      font-size: 0.9rem;
+    }
+    .toc ul li:before { content: "\2013\00a0"; color: var(--t-dim); }
+    .toc li::marker { color: var(--t-dim); }
+    .toc a { color: var(--t-body-fg); text-decoration: none; border-bottom: 1px solid transparent; }
+    .toc a:hover { color: var(--t-link); border-bottom-color: currentColor; }
+
+    /* ---------- hero tweaks (shared with /cto) ---------- */
     @media screen and (max-width: 1023px) {
       .navbar-menu {
         display: flex !important;
@@ -65,7 +166,6 @@
       }
       .navbar-start { display: flex; justify-content: center; width: 100%; }
     }
-    /* Bulma's .title.is-1 is 3rem at every width -- too large on phones */
     @media screen and (max-width: 768px) {
       .publication-title.title.is-1 { font-size: 2rem; line-height: 1.2; }
       .hero .publication-authors { font-size: 1rem !important; }
@@ -73,10 +173,6 @@
     @media screen and (max-width: 420px) {
       .publication-title.title.is-1 { font-size: 1.7rem; }
     }
-    .content table { font-size: 0.92rem; }
-    .content table td, .content table th { text-align: center; vertical-align: middle; }
-    .content table td:first-child, .content table th:first-child,
-    .content table td:nth-child(2), .content table th:nth-child(2) { text-align: left; }
   </style>
 </head>
 <body class="bulma-themed">
@@ -145,6 +241,20 @@
                   <span>Code</span>
                 </a>
               </span>
+              <span class="link-block">
+                <a href="cto_poster.pdf" target="_blank" rel="noopener noreferrer"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon"><i class="fas fa-image"></i></span>
+                  <span>Poster</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="https://www.youtube.com/watch?v=2wk90HakU00" target="_blank" rel="noopener noreferrer"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon"><i class="fab fa-youtube"></i></span>
+                  <span>Video</span>
+                </a>
+              </span>
             </div>
           </div>
         </div>
@@ -153,55 +263,447 @@
   </div>
 </section>
 
-<section class="section">
-  <div class="container is-max-desktop">
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3">Abstract</h2>
-        <div class="content has-text-justified">
-          <p>
-            Sparse-view Computed Tomography (CT) reconstructs images from a limited number of X-ray
-            projections to reduce radiation and scanning time, which is an ill-posed inverse problem.
-            Existing methods achieve high-fidelity reconstructions but overfit to a fixed acquisition
-            setup, failing to generalize well across sampling rates. For example, convolutional neural
-            networks (CNNs) use the same kernels across resolutions, leading to artifacts when data
-            resolution changes. This is a critical limitation in clinical practice, where acquisition
-            sampling settings vary across organs and diagnostic protocols.
-          </p>
-          <p>
-            We propose Computed Tomography neural Operator (CTO), the first neural operator (NO)
-            framework for CT reconstruction. CTO extends learning from fixed discretized grids to
-            continuous function space, enabling a single model to generalize across measurement
-            sampling rates without retraining. We also propose new NO architectural designs for CT:
-            (i) a dual-domain NO architecture in both sinogram and image spaces, capturing
-            complementary spatial&ndash;frequency information, and (ii) rotation-equivariant
-            DIScrete&ndash;COntinuous convolutions (DISCO) that exploit the rotational structure
-            inherent in tomographic acquisition. Empirically, CTO outperforms CNNs (&gt; 3.4dB PSNR
-            gain) and other baselines in multi-resolution settings across multiple CT datasets.
-            Compared to state-of-the-art diffusion methods, CTO has 500&times; faster inference with
-            an average 3dB gain. CTO further demonstrates strong out-of-distribution robustness,
-            maintaining gains under cross-dataset transfer and noisy sinogram conditions. Ablation
-            studies also validate each design choice. CTO establishes neural operators as a principled
-            and practical paradigm for flexible, discretization-agnostic CT reconstruction.
-          </p>
+
+<section class="section blog" id="abstract">
+  <div class="wrap">
+    <div class="content prose abstract-lead">
+      <p>
+        Sparse-view Computed Tomography (CT) reconstructs images from a limited number of X-ray
+        projections to reduce radiation and scanning time, which is an ill-posed inverse problem.
+        Existing methods achieve high-fidelity reconstructions but overfit to a fixed acquisition
+        setup, failing to generalize well across sampling rates. For example, convolutional neural
+        networks (CNNs) use the same kernels across resolutions, leading to artifacts when data
+        resolution changes. This is a critical limitation in clinical practice, where acquisition
+        sampling settings vary across organs and diagnostic protocols.
+      </p>
+      <p>
+        We propose Computed Tomography neural Operator (CTO), the first neural operator (NO)
+        framework for CT reconstruction. CTO extends learning from fixed discretized grids to
+        continuous function space, enabling a single model to generalize across measurement
+        sampling rates without retraining. We also propose new NO architectural designs for CT:
+        (i) a dual-domain NO architecture in both sinogram and image spaces, capturing
+        complementary spatial&ndash;frequency information, and (ii) rotation-equivariant
+        DIScrete&ndash;COntinuous convolutions (DISCO) that exploit the rotational structure
+        inherent in tomographic acquisition. Empirically, CTO outperforms CNNs (&gt; 3.4dB PSNR
+        gain) and other baselines in multi-resolution settings across multiple CT datasets.
+        Compared to state-of-the-art diffusion methods, CTO has 500&times; faster inference with
+        an average 3dB gain. CTO further demonstrates strong out-of-distribution robustness,
+        maintaining gains under cross-dataset transfer and noisy sinogram conditions. Ablation
+        studies also validate each design choice. CTO establishes neural operators as a principled
+        and practical paradigm for flexible, discretization-agnostic CT reconstruction.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section blog" id="index">
+  <div class="wrap">
+    <h2 class="title is-3">Index</h2>
+    <nav class="toc" aria-label="Contents">
+      <ol>
+        <li><a href="#ct">Computed Tomography</a></li>
+        <li><a href="#current-methods">Current Methods</a></li>
+        <li><a href="#our-proposal">Our Proposal</a></li>
+        <li><a href="#method">Our Method: Computed Tomography neural Operator</a></li>
+        <li><a href="#experiments">Experiments</a>
+          <ul>
+            <li><a href="#multi-rate">Multi-rate Reconstruction</a></li>
+            <li><a href="#example-reconstructions">Example Reconstructions</a></li>
+            <li><a href="#super-resolution">Zero-shot Super-resolution</a></li>
+          </ul>
+        </li>
+        <li><a href="#BibTeX">BibTeX</a></li>
+      </ol>
+    </nav>
+  </div>
+</section>
+
+<!-- ============================ Computed Tomography ============================ -->
+<section class="section blog" id="ct">
+  <div class="wrap">
+    <div class="content prose">
+      <h2 class="title is-3">Computed Tomography</h2>
+      <p>
+        CT is an imaging modality where an X-ray source and detector rotate around the patient, and
+        along each angle we get a 1-D projection which is the line integral of attenuation. This is
+        mathematically denoted by the <b>Radon transform</b> $\mathcal{R}$. When you stack these
+        projections together, you get the final measurement called the <b>sinogram</b>
+        $\mathbf{p}(\theta, r)$.
+      </p>
+      <p>
+        Traditionally, reconstructing the underlying image from the sinogram involves a process called
+        <b>Filtered Back Projection</b> (FBP), which passes the sinogram through a high-pass filter to
+        reduce noise and sharpen edges, followed by back-projecting the sinogram onto an empty grid.
+        This process is equivalent to performing the inverse Radon transform $\mathcal{R}^{-1}$ on the
+        sinogram.
+      </p>
+    </div>
+
+    <figure class="fig">
+      <div class="fig-row">
+        <div class="fig-frame">
+          <video src="videos/acquisition.mp4" autoplay loop muted playsinline controls
+                 preload="metadata" aria-label="CT acquisition animation"></video>
+        </div>
+        <div class="fig-frame">
+          <video src="videos/recon.mp4" autoplay loop muted playsinline controls
+                 preload="metadata" aria-label="Filtered back projection animation"></video>
         </div>
       </div>
+      <figcaption>
+        <b>Left:</b> acquisition. <b>Right:</b> filtered back projection.
+      </figcaption>
+    </figure>
+
+    <div class="content prose">
+      <p>
+        To reduce scan time and X-ray dose, we want to reduce the number of angles along which we take
+        the X-ray projections (this process is called <b>sparse-view CT</b>). This gives us a sparse
+        sinogram with fewer projections, and inverting this sparse sinogram to get an image is an ill-posed
+        inverse problem. Using naïve filtered back-projection gives us a streaked and noisy reconstruction.
+        As a result, we need <b>learned priors</b> which can give us better reconstructions.
+      </p>
     </div>
   </div>
 </section>
 
-<section class="hero teaser">
-  <div class="container is-max-desktop">
-    <div class="hero-body">
-      <img src="images/overview.png" alt="CTO overview">
-      <h2 class="subtitle has-text-centered" style="margin-top: 1rem;">
-        A single <span class="dnerf">CTO</span> model reconstructs across measurement sampling rates
-        and image resolutions, without retraining.
-      </h2>
+
+<!-- ============================ Current Methods ============================ -->
+<section class="section blog" id="current-methods">
+  <div class="wrap">
+    <div class="content prose">
+      <h2 class="title is-3">Current Methods</h2>
+      <p>
+        Deep learning models are very successful at learning priors that are able to recover
+        high-quality images from sub-sampled measurements. However, each of these models is a
+        <b>discrete space map</b> which is tied to one setting, i.e. one input sub-sampling rate
+        (e.g. 18-view / 40&times; acceleration) and one output image resolution (e.g. 512&times;512
+        image resolution). If we want to vary any of these, which is a common requirement in clinical
+        settings where acquisition protocols differ across organs and diagnostic purposes, we need to train
+        a separate model for the new setting, which is not scalable.
+      </p>
+    </div>
+
+    <figure class="fig">
+      <div class="fig-frame">
+        <img src="images/existing.svg" alt="Existing deep learning models: one model per sampling rate">
+      </div>
+      <figcaption>
+        Existing deep learning models: a discrete space map, trained per sampling rate and per output
+        resolution.
+      </figcaption>
+    </figure>
+
+    <div class="content prose">
+      <p>
+        As an example, in the table below we show that models that are trained on 72-view sinograms
+        don't perform well on 36-view and 18-view sinograms.
+      </p>
+    </div>
+
+    <div class="prose">
+      <div class="table-wrap">
+        <table class="table is-fullwidth is-striped is-narrow">
+          <thead>
+            <tr>
+              <th class="l">Trained model + setting</th>
+              <th>18-view test</th>
+              <th>36-view test</th>
+              <th>72-view test</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="l">LEARN &mdash; 72 views only</td><td class="is-bad">4.2</td><td class="is-bad">22.4</td><td>32.3</td></tr>
+            <tr><td class="l">RegFormer &mdash; 72 views only</td><td class="is-bad">5.0</td><td class="is-bad">24.6</td><td>35.1</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="table-caption">
+        PSNR&nbsp;(dB) on the AAPM abdomen dataset. A model trained on one setting does not generalize
+        well to another setting.
+      </p>
     </div>
   </div>
 </section>
 
+
+<!-- ============================ Our Proposal ============================ -->
+<section class="section blog" id="our-proposal">
+  <div class="wrap">
+    <div class="content prose">
+      <h2 class="title is-3">Our Proposal</h2>
+      <p>
+        We propose that instead of training a <i>family</i> of discrete-space networks, we train a
+        <b>single function space map</b>. We do this using
+        <a href="https://arxiv.org/abs/2108.08481" target="_blank" rel="noopener noreferrer">Neural
+        Operators</a>, a deep learning architecture that learns mappings between function spaces. Since a
+        function has infinite resolution, it can handle inputs and outputs at any arbitrary discretization
+        or resolution. Therefore, a single neural operator can ingest sinograms at any sub-sampling rate and
+        output reconstructed images at any image resolution without any retraining required.
+      </p>
+    </div>
+
+    <figure class="fig">
+      <div class="fig-frame">
+        <img src="images/our_proposal.svg" alt="A single unified neural operator across all sampling rates">
+      </div>
+      <figcaption>
+        A single function space map: one neural operator across sampling rates and output resolutions.
+      </figcaption>
+    </figure>
+
+    <div class="content prose">
+      <p>
+        We use the <b>Discrete&ndash;Continuous (DISCO)</b> Neural Operator, which is a function space
+        generalization of a traditional Convolutional Neural Network (CNN). Here is how it works: take a
+        3&times;3 CNN kernel for example. It has nine basis functions (which are the nine one-hot matrices),
+        and we learn weights for each of these basis functions during training. For a DISCO convolutional
+        kernel, the basis functions are continuous 2-D functions, and training learns the weights of these
+        continuous functions. The final kernel is thus a weighted sum of continuous functions, and is hence a
+        continuous function itself.
+      </p>
+      <p>
+        Since the final kernel is continuous, it can be discretized for any resolution such that its
+        receptive field covers the same <i>physical area</i> of the image. For example, the continuous kernel
+        can be discretized to a 3&times;3 discrete kernel when working on 256&times;256 images and to a
+        6&times;6 kernel while working with 512&times;512 images. On the other hand, since CNNs have a fixed
+        discretization, their receptive field covers a different physical area for images with different
+        resolutions, and hence they need to be retrained for each resolution. Thus, using DISCO neural
+        operators, we can <b>learn at one resolution and infer at any other resolution</b>.
+      </p>
+    </div>
+
+    <figure class="fig">
+      <div class="fig-frame">
+        <img src="images/DISCOvsCNN.svg" alt="DISCO continuous kernels versus fixed CNN kernels">
+      </div>
+      <figcaption>
+        An example of the DISCO basis functions, and how a continuous kernel is discretized at
+        different resolutions.
+      </figcaption>
+    </figure>
+
+    <div class="content prose">
+      <p>
+        We use the <b>U-shaped DISCO Neural Operator (UDNO)</b> as the building block of our
+        architecture. It closely follows the shape and architecture of a U-Net, except that every CNN
+        layer is replaced with a DISCO layer.
+      </p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================ Method ============================ -->
+<section class="section blog" id="method">
+  <div class="wrap">
+    <div class="content prose">
+      <h2 class="title is-3">Our method: Computed Tomography neural Operator</h2>
+    </div>
+
+    <figure class="fig">
+      <div class="fig-frame">
+        <img src="images/arch.svg" alt="CTO architecture">
+      </div>
+      <figcaption>
+        <b>(a)</b> The full CTO pipeline: sinogram-space operator $\mathrm{NO}_s$, inverse Radon
+        transform $\mathcal{R}^{-1}$, then unrolled cascades of image-space operator $\mathrm{NO}_i$
+        with data consistency. <b>(b)</b> Inside $\mathrm{NO}_s$: parallel spatial and frequency
+        branches, the latter operating after an FFT along the detector axis $r$. <b>(c)</b> Rotating the
+        object shifts the sinogram along $\theta$, with a flip at $180^\circ$.
+      </figcaption>
+    </figure>
+
+    <div class="content prose">
+      <p>
+        Computed Tomography neural Operator, or <b>CTO</b>, is a <b>dual domain</b> neural operator. The
+        sub-sampled sinogram (which can be sub-sampled to any rate) first gets fed into a sinogram-space
+        neural operator $\mathrm{NO}_s$, which fills in missing information in the sinogram. Then, we
+        pass this inpainted sinogram through an inverse Radon transform, which gives us the initial image
+        reconstruction. This initial reconstruction is then passed through multiple cascades of
+        image-space neural operators (labelled $\mathrm{NO}_i$ in the figure) followed by a
+        data-consistency step. Each cascade progressively refines the image until finally we get the
+        final reconstructed image, which is the output of CTO. In our work, we use three cascades of
+        $\mathrm{NO}_i$ in the unrolled image-space network.
+      </p>
+
+      <p>
+        As shown in the figure, the sinogram-space neural operator $\mathrm{NO}_s$ consists of two
+        parallel branches. The first branch operates in the <b>spatial domain</b> of the sinogram, thus
+        embedding local inductive bias in the spatial domain and learning patterns directly in the
+        native polar coordinates of the sinogram.
+      </p>
+      <p>
+        For the other branch, we first perform a Fourier transform along the detector axis of the
+        sinogram. By the <b>Fourier slice theorem</b>,
+      </p>
+      <p style="text-align: center;">
+        $\mathcal{F}_r\{\mathbf{p}(\theta, r)\}(\omega) = \hat{f}(\omega\cos\theta,\ \omega\sin\theta),$
+      </p>
+      <p>
+        this gives us the object's 2-D frequency map in polar coordinates. As a result, the frequency
+        branch of $\mathrm{NO}_s$ learns local patterns in the frequency domain, which correspond to
+        <i>global</i> patterns in the spatial domain. The frequency branch can also be seen as a learned
+        generalization of the ramp filter used in filtered back projection. This two-branch design
+        ensures that we learn both local and global features, leading to better reconstruction quality.
+      </p>
+
+      <p>
+        We also design our sinogram-space neural operator to be <b>rotationally equivariant</b>. CT
+        measurement is inherently rotationally equivariant. The top and bottom of the sinogram are continuous
+        except for a left&ndash;right flip along the detector axis, so the top left of a sinogram and the
+        bottom right of the sinogram are continuous, and vice versa.
+      </p>
+      <p>
+        We incorporate this symmetry in the padding we use for $\mathrm{NO}_s$. Along the $\theta$ axis, we
+        wrap the top part of the sinogram with the bottom part, flipped along the detector axis $r$, and we
+        also do the same for the bottom. This ensures that the network sees a continuous and physically
+        consistent sinogram with no discontinuity in the edges, and can learn more accurate patterns. Some
+        example reconstructions using CTO for rotated sinograms of the same image are shown in panel (c)
+        above.
+      </p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================ Experiments ============================ -->
+<section class="section blog" id="experiments">
+  <div class="wrap">
+    <div class="content prose">
+      <h2 class="title is-3">Experiments</h2>
+
+      <h3 class="title is-4" id="multi-rate" style="margin-top: 0;">Multi-rate Reconstruction</h3>
+      <p>
+        For all methods, we train a <i>single</i> model for all sub-sampling rates, and this helps improve
+        generalization across different rates. Training data consists of an equal number of 9-view, 18-view,
+        36-view and 72-view sub-sampled sinograms. We observe that CTO outperforms all baseline methods.
+        Results are in the table below.
+      </p>
+    </div>
+
+    <div class="table-wrap">
+      <table class="table is-fullwidth is-narrow">
+        <thead>
+          <tr>
+            <th class="l" rowspan="2">Category</th>
+            <th class="l" rowspan="2">Method</th>
+            <th colspan="3" class="span-head">Test rate (PSNR in dB)</th>
+          </tr>
+          <tr>
+            <th class="sub">18-view</th>
+            <th class="sub">36-view</th>
+            <th class="sub">72-view</th>
+          </tr>
+        </thead>
+        <tbody>
+            <tr class="grp"><td class="cat l" rowspan="2">Learning-free</td><td class="l">FBP</td><td>13.14</td><td>13.36</td><td>13.82</td></tr>
+            <tr><td class="l">SART</td><td>24.97</td><td>25.91</td><td>26.66</td></tr>
+            <tr class="grp"><td class="cat l" rowspan="2">Diffusion</td><td class="l">DPS</td><td>25.68</td><td>29.13</td><td>31.64</td></tr>
+            <tr><td class="l">ALD</td><td>25.78</td><td>28.33</td><td>30.56</td></tr>
+            <tr class="grp"><td class="cat l" rowspan="3">Single pass</td><td class="l">DuDoTrans</td><td>25.36</td><td>29.88</td><td>32.35</td></tr>
+            <tr><td class="l">GloReDi</td><td>29.47</td><td>31.74</td><td>32.96</td></tr>
+            <tr><td class="l">MDPRNet</td><td>25.38</td><td>27.91</td><td>30.87</td></tr>
+            <tr class="grp"><td class="cat l" rowspan="5">Unrolled</td><td class="l">Learned PD</td><td>25.35</td><td>27.13</td><td>29.96</td></tr>
+            <tr><td class="l">LEARN</td><td>25.51</td><td>27.53</td><td>29.90</td></tr>
+            <tr><td class="l">RegFormer</td><td>25.67</td><td>28.00</td><td>30.43</td></tr>
+            <tr><td class="l">Unrolled CNN</td><td>29.14</td><td>31.76</td><td>33.35</td></tr>
+            <tr class="is-ours"><td class="l">CTO (ours)</td><td>31.57</td><td>35.06</td><td>37.88</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="table-caption" style="margin-left: auto; margin-right: auto;">
+      Higher is better. On the AAPM abdomen dataset, every learned method is a <i>single</i> model
+      trained jointly on $N_v = \{9, 18, 36, 72\}$ views, so all methods see the same amount of data.
+      9-view results, plus RMSE in Hounsfield Units and SSIM with standard deviations, are in the paper.
+      Note that some baselines score below their published numbers &mdash; expected, since those works
+      train a separate model per sampling rate.
+    </p>
+
+    <div class="prose content" style="margin-top: 2rem;">
+    </div>
+
+    <div class="content prose">
+      <h3 class="title is-4" id="example-reconstructions">Example Reconstructions</h3>
+      <p>
+        The top row below is from the AAPM low-dose CT dataset, the bottom row from the C4KC-KiTS kidney
+        dataset, with PSNR in the top-left corner of each image. In the enlarged regions you can see that
+        CTO produces more faithful reconstructions and preserves noticeably more detail than the other
+        methods.
+      </p>
+    </div>
+
+    <figure class="fig">
+      <div class="fig-frame">
+        <img src="images/multi-dataset-vis.svg" alt="Reconstructions on AAPM and kidney datasets">
+      </div>
+      <figcaption>
+        AAPM low-dose CT dataset (top row) and C4KC-KiTS kidney dataset (bottom row), with PSNR in the
+        top-left corner of each image.
+      </figcaption>
+    </figure>
+
+    <div class="content prose">
+      <p>
+        We also see that CTO holds its advantage across down-sampling rates. If you look at the enlarged
+        regions and compare them across rates, the loss of detail as we sample less is noticeably smaller
+        for CTO &mdash; it preserves fidelity far more gracefully than the other methods.
+      </p>
+    </div>
+
+    <figure class="fig">
+      <div class="fig-frame">
+        <img src="images/multi-accn-vis.svg" alt="Reconstructions across 72-, 36- and 18-view sampling rates">
+      </div>
+      <figcaption>
+        The same slice reconstructed at 72-view, 36-view and 18-view sub-sampling rates.
+      </figcaption>
+    </figure>
+    <div class="content prose">
+      <h3 class="title is-4" id="super-resolution">Zero-shot super-resolution</h3>
+      <p>
+        Finally, we show that CTO also has superior zero-shot super-resolution performance, both in the image
+        space and sinogram space.
+      </p>
+      <p>
+        For image space, if we train at 256&times;256 output resolution and test at 512&times;512 resolution
+        with no fine-tuning, CTO performs <b>3&nbsp;dB</b> PSNR better than Unrolled CNN Variational Network
+        and <b>4.8&nbsp;dB</b> PSNR over LEARN. As we can see in the figure, CTO also has much better
+        reconstruction quality.
+      </p>
+    </div>
+
+    <figure class="fig">
+      <div class="fig-frame">
+        <img src="images/image_superres.svg" alt="Image-space zero-shot super-resolution">
+      </div>
+      <figcaption>
+        Trained at 256&times;256 output resolution, tested at 512&times;512 with no fine-tuning.
+      </figcaption>
+    </figure>
+
+    <div class="content prose">
+      <p>
+        For sinogram space, if we train on a 72-view sub-sampling rate and test on a 144-view sub-sampling
+        rate without fine-tuning, we observe that CTO performs <b>3.7&nbsp;dB</b> PSNR better than Unrolled
+        CNN Variational Network, and again has better perceptual reconstruction quality.
+      </p>
+    </div>
+
+    <figure class="fig">
+      <div class="fig-frame">
+        <img src="images/sino_superres.svg" alt="Sinogram-space zero-shot super-resolution">
+      </div>
+      <figcaption>
+        Trained on a 72-view sub-sampling rate, tested on 144-view with no fine-tuning.
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+
+
+<!-- ============================ BibTeX ============================ -->
 <section class="section" id="BibTeX">
   <div class="container is-max-desktop content">
     <h2 class="title">BibTeX</h2>
@@ -222,6 +724,12 @@
       </a>
       <a class="icon-link" href="https://github.com/neuraloperator/sparse_ct" target="_blank" rel="noopener noreferrer" class="external-link">
         <i class="fab fa-github"></i>
+      </a>
+      <a class="icon-link" href="cto_poster.pdf" target="_blank" rel="noopener noreferrer">
+        <i class="fas fa-image"></i>
+      </a>
+      <a class="icon-link" href="https://www.youtube.com/watch?v=2wk90HakU00" target="_blank" rel="noopener noreferrer">
+        <i class="fab fa-youtube"></i>
       </a>
     </div>
     <div class="columns is-centered">
