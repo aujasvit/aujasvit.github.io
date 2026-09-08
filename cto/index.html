@@ -385,8 +385,8 @@
         <img src="images/existing.svg" alt="Existing deep learning models: one model per sampling rate">
       </div>
       <figcaption>
-        Existing deep learning models: a discrete space map, trained per sampling rate and per output
-        resolution.
+        Existing deep learning models: a separate model is trained for each sampling rate and output
+        image resolution.
       </figcaption>
     </figure>
 
@@ -443,7 +443,7 @@
         <img src="images/our_proposal.svg" alt="A single unified neural operator across all sampling rates">
       </div>
       <figcaption>
-        A single function space map: one neural operator across sampling rates and output resolutions.
+        A single function space map: one neural operator for all sampling rates and output resolutions.
       </figcaption>
     </figure>
 
@@ -473,8 +473,7 @@
         <img src="images/DISCOvsCNN.svg" alt="DISCO continuous kernels versus fixed CNN kernels">
       </div>
       <figcaption>
-        An example of the DISCO basis functions, and how a continuous kernel is discretized at
-        different resolutions.
+        An example of how a continuous kernel is discretized at different resolutions.
       </figcaption>
     </figure>
 
@@ -501,11 +500,10 @@
         <img src="images/arch.svg" alt="CTO architecture">
       </div>
       <figcaption>
-        <b>(a)</b> The full CTO pipeline: sinogram-space operator $\mathrm{NO}_s$, inverse Radon
-        transform $\mathcal{R}^{-1}$, then unrolled cascades of image-space operator $\mathrm{NO}_i$
-        with data consistency. <b>(b)</b> Inside $\mathrm{NO}_s$: parallel spatial and frequency
-        branches, the latter operating after an FFT along the detector axis $r$. <b>(c)</b> The measurement
-        rolled out into a sinogram, and the padding applied along $\theta$.
+        a) Architecture of Computed Tomography neural Operator (CTO): sinogram-space operator
+        $\mathrm{NO}_s$, inverse Radon transform $\mathcal{R}^{-1}$, then unrolled cascades of image-space
+        operator $\mathrm{NO}_i$ with data consistency. b) Inside $\mathrm{NO}_s$: parallel spatial and
+        frequency branches. c) Example of padding used in $\mathrm{NO}_s$.
       </figcaption>
     </figure>
 
@@ -636,8 +634,8 @@
         <img src="images/multi-dataset-vis.svg" alt="Reconstructions on AAPM and kidney datasets">
       </div>
       <figcaption>
-        AAPM low-dose CT dataset (top row) and C4KC-KiTS kidney dataset (bottom row), with PSNR in the
-        top-left corner of each image.
+        Example reconstructions from AAPM low-dose CT dataset (top row) and C4KC-KiTS kidney dataset
+        (bottom row), with PSNR in the top-left corner of each image.
       </figcaption>
     </figure>
 
@@ -654,7 +652,8 @@
         <img src="images/multi-accn-vis.svg" alt="Reconstructions across 72-, 36- and 18-view sampling rates">
       </div>
       <figcaption>
-        The same slice reconstructed at 72-view, 36-view and 18-view sub-sampling rates.
+        The same slice reconstructed at 72-view, 36-view and 18-view sub-sampling rates using different
+        methods.
       </figcaption>
     </figure>
     <div class="content prose">
@@ -676,7 +675,8 @@
         <img src="images/image_superres.svg" alt="Image-space zero-shot super-resolution">
       </div>
       <figcaption>
-        Trained at 256&times;256 output resolution, tested at 512&times;512 with no fine-tuning.
+        Image-space super resolution: trained at 256&times;256 output resolution, tested at 512&times;512
+        with no fine-tuning.
       </figcaption>
     </figure>
 
@@ -693,7 +693,8 @@
         <img src="images/sino_superres.svg" alt="Sinogram-space zero-shot super-resolution">
       </div>
       <figcaption>
-        Trained on a 72-view sub-sampling rate, tested on 144-view with no fine-tuning.
+        Sinogram-space super resolution: trained on a 72-view sub-sampling rate, tested on 144-view with
+        no fine-tuning.
       </figcaption>
     </figure>
   </div>
